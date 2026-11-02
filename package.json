@@ -1,0 +1,42 @@
+{
+  "name": "caddieai",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:api": "node scripts/dev-api.mjs",
+    "dev:full": "vercel dev",
+    "build": "vite build",
+    "lint": "oxlint",
+    "test": "node --test src/golf/shotMath.test.js src/golf/strokesGained.test.ts src/golf/roundStats.test.ts src/golf/dashboard.test.ts src/golf/seedRounds.test.ts src/golf/sgExpertBrief.test.ts src/golf/sgExpertScope.test.ts",
+    "seed": "node scripts/seed-rounds.mjs",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@lucide/lab": "^0.1.2",
+    "@neon/config": "^1.8.3",
+    "@neon/env": "^1.5.0",
+    "@neondatabase/auth": "^0.5.0-beta",
+    "@vercel/functions": "^3.9.11",
+    "busboy": "^1.6.0",
+    "dotenv": "^17.4.2",
+    "jose": "^6.2.12",
+    "lucide-react": "^1.21.0",
+    "openai": "^6.44.0",
+    "pg": "^8.23.1",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-router-dom": "^7.18.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.1",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.2",
+    "oxlint": "^1.69.0",
+    "tailwindcss": "^4.3.1",
+    "vercel": "^54.15.1",
+    "vite": "^8.1.0"
+  }
+}
