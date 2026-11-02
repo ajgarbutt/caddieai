@@ -52,7 +52,7 @@ export default function Profile() {
 
   return (
     <>
-      <Header title="Profile" subtitle="Your player preferences" />
+      <Header title="Profile" subtitle="Your setup" />
 
       <div className="flex flex-1 flex-col px-4 py-6">
         <Card className="mb-6">
