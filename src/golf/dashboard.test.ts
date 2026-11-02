@@ -34,6 +34,8 @@ function stats(overrides: Partial<RoundStats> = {}): RoundStats {
         putts: 0,
         penalties: 0,
         adjustedSg: 0,
+        gir: true,
+        fairway: true,
       },
     ],
     out: { par: 4, yards: 400, score: 4, putts: 0, penalties: 0, adjustedSg: 0 },

@@ -12,6 +12,8 @@ import {
 } from '../golf/dashboard.ts'
 import { DEFAULT_REFERENCE_HANDICAP, DEFAULT_SG_MODE } from '../golf/schema.js'
 import {
+  EXTRA_NEAR_GREEN_HINT,
+  EXTRA_ONTO_GREEN_HINT,
   formatDifferential,
   formatDrive,
   formatPlayedAt,
@@ -218,8 +220,8 @@ export default function Stats() {
           'Scrambling',
           `${formatCount(averages.scrambleSuccess)} / ${formatCount(averages.scrambleChances)}`,
         ],
-        ['Extra onto the green', formatSigned(averages.extraOntoGreen)],
-        ['Extra near the green', formatSigned(averages.extraNearGreen)],
+        ['Extra onto the green', formatSigned(averages.extraOntoGreen), EXTRA_ONTO_GREEN_HINT],
+        ['Extra near the green', formatSigned(averages.extraNearGreen), EXTRA_NEAR_GREEN_HINT],
         ['Penalty strokes', formatCount(averages.penaltyStrokes)],
         ['Driving distance', formatDrive(averages.drivingDistance)],
         ['Eagles or better', formatCount(averages.eagles)],
@@ -373,10 +375,15 @@ export default function Stats() {
               <h2 className="mb-2 text-sm font-semibold text-dark-green">Per round</h2>
               <Card padding="sm">
                 <dl className="divide-y divide-gray-200">
-                  {statRows.map(([label, value]) => (
-                    <div key={label} className="flex items-center justify-between gap-3 py-2 text-sm">
-                      <dt className="text-gray-600">{label}</dt>
-                      <dd className="font-semibold text-dark-green">{value}</dd>
+                  {statRows.map(([label, value, hint]) => (
+                    <div key={label} className="flex items-start justify-between gap-3 py-2 text-sm">
+                      <dt className="min-w-0 text-gray-600">
+                        <span className="block">{label}</span>
+                        {hint ? (
+                          <span className="mt-0.5 block text-[11px] leading-snug text-gray-500">{hint}</span>
+                        ) : null}
+                      </dt>
+                      <dd className="shrink-0 font-semibold text-dark-green">{value}</dd>
                     </div>
                   ))}
                   {averages?.handicapIndex != null && (

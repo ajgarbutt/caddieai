@@ -36,6 +36,10 @@ export type ScorecardHole = {
   putts: number
   penalties: number
   adjustedSg: number | null
+  /** Null when the hole has not been started. */
+  gir: boolean | null
+  /** Null when a par 4 or 5 has not been started. Par 3s are `na`. */
+  fairway: boolean | 'na' | null
 }
 
 export type SideTotals = {
@@ -302,6 +306,8 @@ export function buildRoundStats(input: RoundStatsInput): RoundStats {
       adjustedSg: defined.some((shot) => shot.holeNumber === hole.holeNumber)
         ? (sgByHole.get(hole.holeNumber) ?? 0)
         : null,
+      gir: hasScore ? greenInRegulation(hole, shots) : null,
+      fairway: hole.par < 4 ? 'na' : hasScore ? fairwayHit(hole, shots) : null,
     }
   })
 

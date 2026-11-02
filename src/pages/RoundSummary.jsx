@@ -1,4 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom'
+import { Check, X } from 'lucide-react'
 import Header from '../components/Header'
 import Button from '../components/Button'
 import { useApp } from '../context/AppContext'
@@ -6,6 +7,8 @@ import { holesInPlay } from '../golf/roundPlay'
 import { buildRoundStats } from '../golf/roundStats.ts'
 import { DEFAULT_REFERENCE_HANDICAP, DEFAULT_SG_MODE } from '../golf/schema.js'
 import {
+  EXTRA_NEAR_GREEN_HINT,
+  EXTRA_ONTO_GREEN_HINT,
   formatDifferential,
   formatDrive,
   formatPlayedAt,
@@ -33,6 +36,23 @@ function cell(value) {
   return value == null ? '—' : value
 }
 
+function Mark({ value }) {
+  if (value === true) {
+    return <Check className="h-3.5 w-3.5 text-[#167846]" strokeWidth={3} aria-label="Yes" />
+  }
+  if (value === false) {
+    return <X className="h-3.5 w-3.5 text-danger" strokeWidth={3} aria-label="No" />
+  }
+  if (value === 'na') return <span aria-label="No fairway">-</span>
+  return '—'
+}
+
+function markRatio(holes, key) {
+  const marked = holes.filter((hole) => typeof hole[key] === 'boolean')
+  if (marked.length === 0) return null
+  return `${marked.filter((hole) => hole[key]).length}/${marked.length}`
+}
+
 function formatExtra(value) {
   if (value > 0) return `+${value}`
   if (value < 0) return `−${Math.abs(value)}`
@@ -51,6 +71,8 @@ function ScoreTable({ holes, sideLabel, side }) {
     putts: hole.putts,
     penalties: hole.penalties,
     sg: formatSg(hole.adjustedSg),
+    gir: hole.gir,
+    fairway: hole.fairway,
   }))
   columns.push({
     key: sideLabel,
@@ -62,6 +84,8 @@ function ScoreTable({ holes, sideLabel, side }) {
     putts: side.putts,
     penalties: side.penalties,
     sg: formatSg(side.adjustedSg),
+    gir: markRatio(holes, 'gir'),
+    fairway: markRatio(holes, 'fairway'),
     total: true,
   })
 
@@ -72,6 +96,8 @@ function ScoreTable({ holes, sideLabel, side }) {
     ['Putts', (column) => column.putts],
     ['Pen', (column) => column.penalties],
     ['SG', (column) => column.sg],
+    ['GIR', (column) => column.gir, 'mark'],
+    ['Fairway', (column) => column.fairway, 'mark'],
   ]
 
   return (
@@ -94,23 +120,27 @@ function ScoreTable({ holes, sideLabel, side }) {
           </tr>
         </thead>
         <tbody>
-          {rows.map(([label, value]) => (
+          {rows.map(([label, value, kind]) => (
             <tr key={label}>
-              <th className="sticky left-0 bg-off-white pr-2 text-left font-semibold text-dark-green">
+              <th
+                className="sticky left-0 bg-off-white pr-2 text-left font-semibold text-dark-green"
+                title={label === 'GIR' ? 'Green in regulation' : undefined}
+              >
                 {label}
               </th>
               {columns.map((column) => {
                 const shown = value(column)
                 const scoreCell = label === 'Score' && column.kind
+                const markCell = kind === 'mark' && !column.total
                 return (
                   <td key={column.key} className="px-0.5 py-0.5">
                     <span
                       className={[
-                        'inline-flex min-h-7 min-w-7 items-center justify-center rounded-md px-1',
+                        'inline-flex min-h-7 min-w-7 items-center justify-center rounded-md px-1 whitespace-nowrap',
                         scoreCell ? KIND_CLASS[column.kind] : column.total ? 'font-bold text-dark-green' : 'text-dark-green',
                       ].join(' ')}
                     >
-                      {cell(shown)}
+                      {markCell ? <Mark value={shown} /> : cell(shown)}
                     </span>
                   </td>
                 )
@@ -123,11 +153,16 @@ function ScoreTable({ holes, sideLabel, side }) {
   )
 }
 
-function StatLine({ label, value }) {
+function StatLine({ label, value, hint }) {
   return (
-    <div className="flex items-baseline justify-between gap-4 border-b border-gray-200 py-2 last:border-0">
-      <dt className="text-sm text-gray-600">{label}</dt>
-      <dd className="text-sm font-semibold text-dark-green">{value}</dd>
+    <div className="flex items-start justify-between gap-4 border-b border-gray-200 py-2 last:border-0">
+      <dt className="min-w-0">
+        <span className="block text-sm text-gray-600">{label}</span>
+        {hint ? (
+          <span className="mt-0.5 block text-[11px] leading-snug text-gray-500">{hint}</span>
+        ) : null}
+      </dt>
+      <dd className="shrink-0 text-sm font-semibold text-dark-green">{value}</dd>
     </div>
   )
 }
@@ -260,8 +295,16 @@ export default function RoundSummary() {
               label="Scrambling"
               value={formatRatio(stats.scrambling.success, stats.scrambling.chances)}
             />
-            <StatLine label="Extra shots onto green" value={formatExtra(stats.extraOntoGreen)} />
-            <StatLine label="Extra shots near green" value={formatExtra(stats.extraNearGreen)} />
+            <StatLine
+              label="Extra shots onto green"
+              value={formatExtra(stats.extraOntoGreen)}
+              hint={EXTRA_ONTO_GREEN_HINT}
+            />
+            <StatLine
+              label="Extra shots near green"
+              value={formatExtra(stats.extraNearGreen)}
+              hint={EXTRA_NEAR_GREEN_HINT}
+            />
             <StatLine label="Penalty strokes" value={String(stats.penaltyStrokes)} />
             <StatLine label="Driving distance" value={formatDrive(stats.drivingDistance)} />
             <StatLine label="Eagles" value={String(stats.eagles)} />

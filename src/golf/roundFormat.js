@@ -28,6 +28,14 @@ export function formatRatio(hit, chances) {
   return `${hit} / ${chances}`
 }
 
+/** Shown under the round and stats totals for shots past regulation onto the green. */
+export const EXTRA_ONTO_GREEN_HINT =
+  'Shots past regulation to reach the green. A chip from beside the green is 0.'
+
+/** Shown under the round and stats totals for shots past regulation before a chip or putt. */
+export const EXTRA_NEAR_GREEN_HINT =
+  'Shots past regulation before a chip or putt.'
+
 export function formatDrive(yards) {
   if (yards == null || !Number.isFinite(yards)) return '—'
   return `${Math.round(yards)} yds`
