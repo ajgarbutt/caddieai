@@ -1,7 +1,15 @@
 /**
  * System prompt for the Strokes Gained Expert.
  * The stats are already calculated. The model only explains them.
- * @param {{ profile: { name?: string } | null, brief: string }} input
+ * @param {{
+ *   profile: {
+ *     name?: string,
+ *     handicap?: number | null,
+ *     units?: 'yards' | 'metres',
+ *     sassMode?: boolean,
+ *   } | null,
+ *   brief: string,
+ * }} input
  */
 export function buildSgExpertSystemPrompt({ profile, brief }) {
   const name = profile?.name?.trim()

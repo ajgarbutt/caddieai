@@ -9,7 +9,8 @@
     "dev:full": "vercel dev",
     "build": "vite build",
     "lint": "oxlint",
-    "test": "node --test src/golf/shotMath.test.js src/golf/strokesGained.test.ts src/golf/roundStats.test.ts src/golf/dashboard.test.ts src/golf/seedRounds.test.ts src/golf/sgExpertBrief.test.ts src/golf/sgExpertScope.test.ts",
+    "test": "node --test src/golf/shotMath.test.js src/golf/strokesGained.test.ts src/golf/roundStats.test.ts src/golf/dashboard.test.ts src/golf/seedRounds.test.ts src/golf/sgExpertBrief.test.ts src/golf/sgExpertScope.test.ts src/eval/sgChat/sgChat.eval.test.ts",
+    "eval:sg": "node src/eval/sgChat/run.ts",
     "seed": "node scripts/seed-rounds.mjs",
     "preview": "vite preview"
   },

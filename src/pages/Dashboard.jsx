@@ -81,6 +81,7 @@ export default function Dashboard() {
   const timerRef = useRef(null)
   const processingRef = useRef(false)
   const lastAutoReadRef = useRef(null)
+  const pendingAutoReadModeRef = useRef(null)
   const mediaRecorderRef = useRef(null)
   const streamRef = useRef(null)
   const chunksRef = useRef([])
@@ -153,6 +154,8 @@ export default function Dashboard() {
     : null
 
   useEffect(() => {
+    const mode = expert ? 'sg' : 'caddie'
+    if (pendingAutoReadModeRef.current !== mode) return
     if (isAwaitingAdvice || !speechSupported || !voiceSettings.autoReadResponses) {
       return
     }
@@ -162,10 +165,16 @@ export default function Dashboard() {
       lastMessage.role !== 'assistant' ||
       !shouldAutoReadAdvice(lastMessage.text)
     ) {
+      pendingAutoReadModeRef.current = null
       return
     }
 
-    if (lastAutoReadRef.current === lastMessageKey) return
+    if (lastAutoReadRef.current === lastMessageKey) {
+      pendingAutoReadModeRef.current = null
+      return
+    }
+
+    pendingAutoReadModeRef.current = null
     lastAutoReadRef.current = lastMessageKey
     const timer = window.setTimeout(() => {
       speak(lastMessage.text, lastMessageKey)
@@ -173,6 +182,7 @@ export default function Dashboard() {
 
     return () => window.clearTimeout(timer)
   }, [
+    expert,
     lastMessage,
     lastMessageKey,
     isAwaitingAdvice,
@@ -225,7 +235,9 @@ export default function Dashboard() {
           const latest = [...conversationMessages].reverse().find((message) => message.role === 'user')
           const choice = resolveSgScope(latest?.text ?? '', sgCatalog, sgChat?.scope ?? null)
           if (choice.kind !== 'career' && choice.kind !== 'round') {
-            updateAssistant(sgScopeReply(choice, sgCatalog))
+            const reply = sgScopeReply(choice, sgCatalog)
+            if (reply?.trim()) pendingAutoReadModeRef.current = 'sg'
+            updateAssistant(reply)
             setStreamingReply('')
             return
           }
@@ -253,6 +265,9 @@ export default function Dashboard() {
           },
         })
 
+        if (reply?.trim()) {
+          pendingAutoReadModeRef.current = askingExpert ? 'sg' : 'caddie'
+        }
         updateAssistant(reply)
         setStreamingReply('')
 
